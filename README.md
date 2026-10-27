@@ -1,3 +1,67 @@
+Mapping Urban Green Space in Dhaka Using Sentinel-2 and EVI
+
+This Google Earth Engine JavaScript workflow estimates vegetation cover within a user-supplied Dhaka boundary using Sentinel-2 imagery and the Enhanced Vegetation Index (EVI).
+
+It creates a cloud-masked median composite, identifies pixels with **EVI ≥ 0.35**, and estimates their area in hectares and percentage of the valid observation area.
+
+The resulting map is a threshold-based vegetation estimate. It does not distinguish public parks, private gardens, farmland, or other vegetation types.
+
+## Overview
+
+| Setting | Value |
+|---|---|
+| Platform | Google Earth Engine |
+| Language | JavaScript |
+| Study area | User-supplied Dhaka boundary |
+| Satellite input | Sentinel-2 imagery with an SCL band |
+| Calendar year | 2022 |
+| Day-of-year filter | 150–240, inclusive |
+| Composite | Median of masked observations |
+| Vegetation index | Enhanced Vegetation Index |
+| Vegetation threshold | EVI ≥ 0.35 |
+| Requested area-reduction scale | 10 metres |
+| Area units | Hectares |
+
+**Season note:** In 2022, days 150–240 correspond to **30 May–28 August**. The code comment calls this the dry season, but that description should be corrected: this period broadly overlaps Dhaka's monsoon season.
+
+## Required Inputs
+
+The supplied snippet references two objects that must be defined before running it:
+
+- `Dhaka`: the region-of-interest geometry.
+- `s2`: a Sentinel-2 ImageCollection containing the `B2`, `B4`, `B8`, `B11`, and `SCL` bands.
+
+A compatible collection is Sentinel-2 Level-2A Surface Reflectance Harmonized:
+
+```javascript
+var s2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED');
+```
+
+Use your own boundary asset, replacing the placeholder asset path:
+
+```javascript
+var Dhaka = ee.FeatureCollection(
+  'projects/YOUR_PROJECT/assets/YOUR_DHAKA_BOUNDARY'
+).geometry();
+
+Map.centerObject(Dhaka, 10);
+```
+
+Alternatively, draw a boundary in the Earth Engine Code Editor and name the imported geometry `Dhaka`.
+
+The original snippet does not specify an image-collection ID or include the boundary. The collection above is a compatible setup example, not confirmation of the dataset used to produce any previous results.
+
+## Method
+
+### 1. Filter Satellite Imagery
+
+Images are filtered by the Dhaka boundary, the year 2022, and days 150–240. Earth Engine date filters use an exclusive end date, while the day-of-year filter includes its endpoints.
+
+### 2. Apply the Cloud Mask
+
+The function uses Sentinel-2's Scene Classification Layer (`SCL`). It excludes:
+
+| SCL value | Classification |
 |---|---|
 | 3 | Cloud shadows |
 | 7 | Unclassified / low-probability cloud category |
@@ -124,5 +188,4 @@ The boundary and figures are files to add if available and shareable; they are n
 **Md. Kausar Hossein**
 
 [GitHub](https://github.com/Kausar-Hossein)
-
-GEE Code Project Link > https://code.earthengine.google.com/0b7ad2b903d836c1b5ac655360573f51
+GEE Code Link> https://code.earthengine.google.com/8dc183e43a643f02f8a93bfcb9a3829e
